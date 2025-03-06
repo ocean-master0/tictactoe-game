@@ -263,4 +263,4 @@ def reset_game():
     return jsonify({"message": "Game reset", "board": board, "scores": {"player": game_data["player_score"], "computer": game_data["computer_score"]}, "achievements": game_data["achievements"]})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
