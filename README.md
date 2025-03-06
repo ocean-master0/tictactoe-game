@@ -84,6 +84,9 @@ Contributions are welcome! Please fork the repository, create a feature branch, 
 ## License
 This project is licensed under the [MIT License](LICENSE) — feel free to use, modify, and distribute it.
 
+## Live Demo
+[Play Now](https://tictactoe-game-8.onrender.com)
+
 ## Author
 - **Ocean Master**  
   GitHub: [ocean-master0](https://github.com/ocean-master0)
