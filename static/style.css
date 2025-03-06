@@ -1,0 +1,335 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2b1e66 0%, #4a3f99 100%); /* Vibrant purple gradient */
+    color: #fff;
+    transition: all 0.5s ease;
+}
+
+body.light-theme {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Soft pastel gradient */
+    color: #333;
+}
+
+/* Container with Neumorphism */
+.container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    padding: 2.5rem;
+    border-radius: 30px;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3), -10px -10px 20px rgba(255, 255, 255, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 650px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+body.light-theme .container {
+    background: #e0e4e8;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.7);
+}
+
+/* Title Container with Logo */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+/* Logo Styling */
+.logo {
+    width: 50px; /* Adjust size as needed */
+    height: 50px;
+    margin-right: 1rem;
+    border-radius: 50%; /* Circular logo */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.1);
+}
+
+body.light-theme .logo {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings with Glow */
+h1 {
+    font-size: 2.8rem;
+    margin: 0; /* Remove default margin to align with logo */
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ff6f61; /* Coral accent */
+    text-shadow: 0 0 10px rgba(255, 111, 97, 0.7);
+}
+
+body.light-theme h1 {
+    color: #ff6f61;
+    text-shadow: none;
+}
+
+h3 {
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+    color: #a3bffa; /* Light purple */
+}
+
+body.light-theme h3 {
+    color: #6b7280; /* Gray */
+}
+
+/* Form Elements */
+#name-entry {
+    margin-bottom: 2.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.7rem;
+    font-size: 1.2rem;
+    color: #b3c4ff; /* Soft blue */
+}
+
+body.light-theme label {
+    color: #4b5563;
+}
+
+input[type="text"], select {
+    padding: 0.9rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 280px;
+    margin-bottom: 1.2rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+body.light-theme input[type="text"], body.light-theme select {
+    background: #fff;
+    color: #333;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"]:focus, select:focus {
+    outline: none;
+    background: rgba(255, 111, 97, 0.3); /* Coral highlight */
+    box-shadow: 0 0 15px rgba(255, 111, 97, 0.6);
+}
+
+body.light-theme input[type="text"]:focus, body.light-theme select:focus {
+    background: #fef2f2;
+}
+
+/* Buttons with Vibrant Gradients */
+button {
+    background: linear-gradient(135deg, #ff6f61, #ff3d00); /* Coral to orange */
+    color: #fff;
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(255, 111, 97, 0.5);
+}
+
+button:hover {
+    background: linear-gradient(135deg, #ff3d00, #e63900);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 61, 0, 0.7);
+}
+
+button:disabled {
+    background: #4b5563;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.symbol-buttons, #power-ups {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.symbol-button {
+    font-size: 1.8rem;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+body.light-theme .symbol-button {
+    background: #e5e7eb;
+}
+
+.symbol-button:hover {
+    background: rgba(255, 111, 97, 0.6);
+    transform: scale(1.1);
+}
+
+body.light-theme .symbol-button:hover {
+    background: #fed7d7;
+}
+
+/* Game Board with Neumorphic Cells */
+.board {
+    display: inline-block;
+    margin: 2.5rem 0;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.board.space-theme .cell {
+    background: url('https://via.placeholder.com/80/1a1a40/FFFFFF?text=✨') center/cover;
+}
+
+.board.jungle-theme .cell {
+    background: url('https://via.placeholder.com/80/1a3d1a/FFFFFF?text=🌴') center/cover;
+}
+
+.row {
+    display: flex;
+}
+
+.cell {
+    width: 90px;
+    height: 90px;
+    border: none;
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffeb3b; /* Bright yellow for symbols */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.1);
+}
+
+body.light-theme .cell {
+    background: #fff;
+    color: #2b1e66; /* Deep purple */
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), -5px -5px 10px rgba(255, 255, 255, 0.7);
+}
+
+.cell:hover:not(:disabled) {
+    background: rgba(255, 111, 97, 0.5);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 111, 97, 0.6);
+}
+
+body.light-theme .cell:hover:not(:disabled) {
+    background: #fed7d7;
+}
+
+/* Status and Info */
+#status-message, #timer, #score-board, #achievements {
+    margin-bottom: 1.8rem;
+    font-size: 1.3rem;
+    color: #a3bffa;
+    font-weight: 500;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme #status-message, body.light-theme #timer, body.light-theme #score-board, body.light-theme #achievements {
+    color: #4b5563;
+    text-shadow: none;
+}
+
+#leaderboard {
+    margin-bottom: 1.8rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 15px;
+}
+
+body.light-theme #leaderboard {
+    background: #f3f4f6;
+}
+
+/* Winning Animation */
+.winner .cell {
+    animation: winAnimation 0.8s infinite;
+}
+
+@keyframes winAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* Theme Toggle and Select */
+#theme-toggle, #theme-select {
+    margin: 0.7rem;
+    background: linear-gradient(135deg, #34d399, #059669); /* Green gradient */
+}
+
+#theme-toggle:hover, #theme-select:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    .title-container {
+        flex-direction: column;
+    }
+
+    .logo {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    .cell {
+        width: 70px;
+        height: 70px;
+        font-size: 2.2rem;
+    }
+
+    button {
+        padding: 0.7rem 1.2rem;
+        font-size: 1rem;
+    }
+
+    input[type="text"], select {
+        max-width: 220px;
+    }
+}

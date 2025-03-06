@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}"> <!-- Updated favicon path -->
+</head>
+<body class="light-theme">
+    <div class="container">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tic Tac Toe Logo" class="logo"> <!-- Updated logo path -->
+            <h1>Tic Tac Toe</h1>
+        </div>
+        
+        <div id="name-entry">
+            <label for="player1_name">Your Name:</label>
+            <input type="text" id="player1_name" placeholder="Your Name">
+            <label for="board-size">Board Size:</label>
+            <select id="board-size">
+                <option value="3">3x3</option>
+                <option value="4">4x4</option>
+            </select>
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+            <label for="win-condition">Win Condition:</label>
+            <select id="win-condition">
+                <option value="row">Row</option>
+                <option value="square">Square</option>
+            </select>
+            <button id="start-button">Start</button>
+        </div>
+        
+        <div id="symbol-selection" style="display: none;">
+            <p id="symbol-prompt"></p>
+            <div class="symbol-buttons">
+                <button class="symbol-button" data-symbol="X">X</button>
+                <button class="symbol-button" data-symbol="O">O</button>
+            </div>
+        </div>
+        
+        <div id="game-board" style="display: none;">
+            <div id="score-board">Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span></div>
+            <div id="timer">Time: 10s</div>
+            <div id="status-message"></div>
+            <div id="power-ups">
+                <button class="power-up" data-powerup="clear_cell">Clear Cell (<span id="clear-cell-count">1</span>)</button>
+                <button class="power-up" data-powerup="swap_symbol">Swap Symbol (<span id="swap-symbol-count">1</span>)</button>
+                <button class="power-up" data-powerup="double_move">Double Move (<span id="double-move-count">1</span>)</button>
+            </div>
+            <div class="board" id="board"></div>
+            <div id="leaderboard"></div>
+            <div id="achievements"></div>
+            <button id="reset-button">Reset Game</button>
+            <button id="theme-toggle">Toggle Theme</button>
+            <select id="theme-select">
+                <option value="default">Default</option>
+                <option value="space">Space</option>
+                <option value="jungle">Jungle</option>
+            </select>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
