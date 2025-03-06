@@ -263,4 +263,5 @@ def reset_game():
     return jsonify({"message": "Game reset", "board": board, "scores": {"player": game_data["player_score"], "computer": game_data["computer_score"]}, "achievements": game_data["achievements"]})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT or default to 5000
+    app.run(host='0.0.0.0', port=port, debug=False)
