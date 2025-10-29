@@ -4,6 +4,8 @@ import json
 import os
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Game state
 game_data = {
@@ -16,18 +18,22 @@ game_data = {
     "player_score": 0,
     "computer_score": 0,
     "difficulty": "Medium",
-    "power_ups": {"clear_cell": 1, "swap_symbol": 1, "double_move": 1},
     "move_count": 0,
-    "achievements": {"hard_wins": 0, "powerup_usage": 0},
+    "achievements": {"hard_wins": 0},
     "win_condition": "row"
 }
 board = None
-leaderboard_file = "leaderboard.json"
+
+# Use absolute path for leaderboard file
+leaderboard_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "leaderboard.json")
 
 # Create leaderboard.json if it doesn't exist
-if not os.path.exists(leaderboard_file):
-    with open(leaderboard_file, 'w') as f:
-        json.dump({}, f)
+try:
+    if not os.path.exists(leaderboard_file):
+        with open(leaderboard_file, 'w') as f:
+            json.dump({}, f)
+except Exception as e:
+    print(f"Error creating leaderboard file: {e}")
 
 def initialize_board(size):
     global board
@@ -164,33 +170,72 @@ def index():
 @app.route('/start_game', methods=['POST'])
 def start_game():
     global board, game_data
-    data = request.json
-    game_data["player1_name"] = data.get('player1_name')
-    game_data["player1_symbol"] = data.get('symbol', 'X')
-    game_data["player2_symbol"] = 'O' if game_data["player1_symbol"] == 'X' else 'X'
-    game_data["board_size"] = data.get('board_size', 3)
-    game_data["difficulty"] = data.get('difficulty', 'Medium')
-    game_data["win_condition"] = data.get('win_condition', 'row')
-    initialize_board(game_data["board_size"])
-    print(f"Game started: board_size={game_data['board_size']}, board={board}")
-    return jsonify(game_data)
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        player_name = data.get('player1_name', '').strip()
+        if not player_name:
+            return jsonify({"error": "Player name is required"}), 400
+        
+        game_data["player1_name"] = player_name
+        game_data["player1_symbol"] = data.get('symbol', 'X')
+        game_data["player2_symbol"] = 'O' if game_data["player1_symbol"] == 'X' else 'X'
+        
+        board_size = data.get('board_size', 3)
+        if board_size not in [3, 4]:
+            return jsonify({"error": "Board size must be 3 or 4"}), 400
+        game_data["board_size"] = board_size
+        
+        difficulty = data.get('difficulty', 'Medium')
+        if difficulty not in ['Easy', 'Medium', 'Hard']:
+            return jsonify({"error": "Invalid difficulty level"}), 400
+        game_data["difficulty"] = difficulty
+        
+        win_condition = data.get('win_condition', 'row')
+        if win_condition not in ['row', 'square']:
+            return jsonify({"error": "Invalid win condition"}), 400
+        game_data["win_condition"] = win_condition
+        
+        initialize_board(game_data["board_size"])
+        print(f"Game started: board_size={game_data['board_size']}, board={board}")
+        return jsonify(game_data)
+    except Exception as e:
+        print(f"Error starting game: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/make_move', methods=['POST'])
 def make_move():
     global board, game_data
-    data = request.json
-    row, col = data.get('row'), data.get('col')
-    print(f"Received move: row={row}, col={col}, board={board}")
-    
-    if not (0 <= row < game_data["board_size"] and 0 <= col < game_data["board_size"]):
-        print(f"Out of bounds: row={row}, col={col}, board_size={game_data['board_size']}")
-        return jsonify({"error": "Invalid move"}), 400
-    if board[row][col] != '':
-        print(f"Cell already taken: ({row}, {col}) = {board[row][col]}")
-        return jsonify({"error": "Invalid move"}), 400
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        row, col = data.get('row'), data.get('col')
+        
+        # Validate row and col are not None
+        if row is None or col is None:
+            return jsonify({"error": "Row and column are required"}), 400
+        
+        print(f"Received move: row={row}, col={col}, board={board}")
+        
+        if not (0 <= row < game_data["board_size"] and 0 <= col < game_data["board_size"]):
+            print(f"Out of bounds: row={row}, col={col}, board_size={game_data['board_size']}")
+            return jsonify({"error": "Invalid move"}), 400
+        if board[row][col] != '':
+            print(f"Cell already taken: ({row}, {col}) = {board[row][col]}")
+            return jsonify({"error": "Invalid move"}), 400
 
-    board[row][col] = game_data["player1_symbol"]
-    game_data["move_count"] += 1
+        board[row][col] = game_data["player1_symbol"]
+        game_data["move_count"] += 1
+    except (TypeError, ValueError) as e:
+        print(f"Error processing move: {e}")
+        return jsonify({"error": "Invalid move data"}), 400
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
     if check_win(board, game_data["player1_symbol"], game_data["win_condition"]):
         game_data["winner"] = game_data["player1_name"]
@@ -227,30 +272,19 @@ def make_move():
         return jsonify({"board": board, "winner": None, "draw": False, "computer_move": {"row": row, "col": col}, "scores": {"player": game_data["player_score"], "computer": game_data["computer_score"]}, "achievements": game_data["achievements"]})
     return jsonify({"board": board})
 
-@app.route('/use_powerup', methods=['POST'])
-def use_powerup():
-    global board, game_data
-    powerup = request.json.get('powerup')
-    if game_data["power_ups"].get(powerup, 0) > 0:
-        if powerup == "clear_cell":
-            row, col = request.json.get('row'), request.json.get('col')
-            board[row][col] = ''
-        elif powerup == "swap_symbol":
-            game_data["player1_symbol"], game_data["player2_symbol"] = game_data["player2_symbol"], game_data["player1_symbol"]
-        elif powerup == "double_move":
-            game_data["power_ups"]["double_move"] -= 1
-            return jsonify({"board": board, "power_ups": game_data["power_ups"], "double_move": True})
-        game_data["power_ups"][powerup] -= 1
-        game_data["achievements"]["powerup_usage"] += 1
-        return jsonify({"board": board, "power_ups": game_data["power_ups"], "achievements": game_data["achievements"]})
-    return jsonify({"error": "Power-up not available"}), 400
-
 @app.route('/leaderboard', methods=['GET'])
 def get_leaderboard():
     try:
         with open(leaderboard_file, 'r') as f:
             return jsonify(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
+    except FileNotFoundError:
+        print("Leaderboard file not found, returning empty leaderboard")
+        return jsonify({})
+    except json.JSONDecodeError:
+        print("Error decoding leaderboard JSON, returning empty leaderboard")
+        return jsonify({})
+    except Exception as e:
+        print(f"Unexpected error reading leaderboard: {e}")
         return jsonify({})
 
 @app.route('/reset_game', methods=['POST'])

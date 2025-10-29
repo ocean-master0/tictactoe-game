@@ -2,11 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- theme-color is set dynamically by the script above for browsers that support it; removed static meta to avoid unsupported meta in Firefox/Opera -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script>
+        (function() {
+            // Set theme-color dynamically for browsers that support matchMedia
+            try {
+                var getColor = function(dark) {
+                    return dark ? '#6366f1' : '#fdfcfb';
+                };
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (!meta) {
+                    meta = document.createElement('meta');
+                    meta.setAttribute('name', 'theme-color');
+                    document.head.appendChild(meta);
+                }
+                var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+                var apply = function(e) {
+                    // e may be MediaQueryListEvent or MediaQueryList or boolean
+                    var dark = (typeof e === 'boolean') ? e : (e.matches !== undefined ? e.matches : mql.matches);
+                    meta.setAttribute('content', getColor(dark));
+                };
+                if (mql) {
+                    apply(mql);
+                    if (typeof mql.addEventListener === 'function') {
+                        mql.addEventListener('change', apply);
+                    } else if (typeof mql.addListener === 'function') {
+                        mql.addListener(apply);
+                    }
+                } else {
+                    // fallback: keep default light color
+                    apply(false);
+                }
+            } catch (err) {
+                // fail silently
+            }
+        })();
+    </script>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Tic Tac Toe - Premium Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}"> <!-- Updated favicon path -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 </head>
 <body class="light-theme">
     <div class="container">
@@ -37,7 +81,7 @@
             <button id="start-button">Start</button>
         </div>
         
-        <div id="symbol-selection" style="display: none;">
+        <div id="symbol-selection">
             <p id="symbol-prompt"></p>
             <div class="symbol-buttons">
                 <button class="symbol-button" data-symbol="X">X</button>
@@ -45,27 +89,23 @@
             </div>
         </div>
         
-        <div id="game-board" style="display: none;">
+        <div id="game-board">
             <div id="score-board">Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span></div>
             <div id="timer">Time: 10s</div>
             <div id="status-message"></div>
-            <div id="power-ups">
-                <button class="power-up" data-powerup="clear_cell">Clear Cell (<span id="clear-cell-count">1</span>)</button>
-                <button class="power-up" data-powerup="swap_symbol">Swap Symbol (<span id="swap-symbol-count">1</span>)</button>
-                <button class="power-up" data-powerup="double_move">Double Move (<span id="double-move-count">1</span>)</button>
-            </div>
             <div class="board" id="board"></div>
             <div id="leaderboard"></div>
             <div id="achievements"></div>
             <button id="reset-button">Reset Game</button>
             <button id="theme-toggle">Toggle Theme</button>
-            <select id="theme-select">
+            <label for="theme-select">Select Theme</label>
+            <select id="theme-select" title="Select game theme">
                 <option value="default">Default</option>
                 <option value="space">Space</option>
                 <option value="jungle">Jungle</option>
             </select>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=4.0"></script>
 </body>
 </html>

@@ -3,7 +3,6 @@ let playerSymbol = '';
 let computerSymbol = '';
 let isGameActive = true;
 let boardSize = 3;
-let doubleMove = false;
 let timeLeft = 10;
 let timer = null;
 
@@ -50,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('status-message').textContent = `${playerName}'s turn (${playerSymbol})`;
                 renderBoard(boardSize);
                 startTimer();
-                updatePowerUps(data.power_ups);
                 updateAchievements(data.achievements);
                 fetchLeaderboard();
                 isGameActive = true;
@@ -64,47 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const col = parseInt(e.target.dataset.col);
         console.log(`Clicked: row=${row}, col=${col}`);
         makeMove(row, col);
-    });
-
-    document.querySelectorAll('.power-up').forEach(button => {
-        button.addEventListener('click', () => {
-            const powerup = button.dataset.powerup;
-            if (powerup === "double_move") {
-                fetch('/use_powerup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ powerup })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.double_move) {
-                        doubleMove = true;
-                        updatePowerUps(data.power_ups);
-                        updateAchievements(data.achievements);
-                    }
-                });
-            } else {
-                alert(`Select a cell for ${powerup}`);
-                document.getElementById('board').addEventListener('click', function handler(e) {
-                    if (e.target.classList.contains('cell')) {
-                        const row = parseInt(e.target.dataset.row);
-                        const col = parseInt(e.target.dataset.col);
-                        fetch('/use_powerup', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ powerup, row, col })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            updateBoard(data);
-                            updatePowerUps(data.power_ups);
-                            updateAchievements(data.achievements);
-                        });
-                        this.removeEventListener('click', handler);
-                    }
-                }, { once: true });
-            }
-        });
     });
 
     resetButton.addEventListener('click', () => {
@@ -167,12 +124,7 @@ function makeMove(row, col) {
         if (data.winner || data.draw) {
             fetchLeaderboard(); // Update leaderboard when game ends
         }
-        if (doubleMove) {
-            doubleMove = false;
-            alert("Make your second move!");
-        } else {
-            resetTimer();
-        }
+        resetTimer();
     });
 }
 
@@ -191,10 +143,18 @@ function updateBoard(data) {
         document.getElementById('board').classList.add('winner');
         clearInterval(timer);
         isGameActive = false;
+        // Auto-restart after 3 seconds
+        setTimeout(() => {
+            autoRestartGame();
+        }, 3000);
     } else if (data.draw) {
         statusMessage.textContent = "It's a draw!";
         clearInterval(timer);
         isGameActive = false;
+        // Auto-restart after 3 seconds
+        setTimeout(() => {
+            autoRestartGame();
+        }, 3000);
     } else if (data.computer_move) {
         setTimeout(() => {
             const cell = document.querySelector(`[data-row="${data.computer_move.row}"][data-col="${data.computer_move.col}"]`);
@@ -204,7 +164,7 @@ function updateBoard(data) {
     }
     if (data.event) statusMessage.textContent = data.event;
     updateScores(data.scores || { player: 0, computer: 0 });
-    updateAchievements(data.achievements || { hard_wins: 0, powerup_usage: 0 });
+    updateAchievements(data.achievements || { hard_wins: 0 });
     if (data.leaderboard) updateLeaderboard(data.leaderboard); // Update leaderboard if included in response
 }
 
@@ -217,8 +177,16 @@ function startTimer() {
         document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
         if (timeLeft <= 0) {
             clearInterval(timer);
-            alert("Time's up! Turn skipped.");
-            resetTimer();
+            // Make a random move for the player if time runs out
+            const boardElement = document.getElementById('board');
+            const emptyCells = Array.from(document.querySelectorAll('.cell'))
+                .filter(cell => cell.textContent === '');
+            if (emptyCells.length > 0 && isGameActive) {
+                const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                const row = parseInt(randomCell.dataset.row);
+                const col = parseInt(randomCell.dataset.col);
+                makeMove(row, col);
+            }
         }
     }, 1000);
 }
@@ -233,15 +201,23 @@ function updateScores(scores) {
     document.getElementById('computer-score').textContent = scores.computer;
 }
 
-function updatePowerUps(power_ups) {
-    document.getElementById('clear-cell-count').textContent = power_ups.clear_cell;
-    document.getElementById('swap-symbol-count').textContent = power_ups.swap_symbol;
-    document.getElementById('double-move-count').textContent = power_ups.double_move;
-}
-
 function updateAchievements(achievements) {
     const achDiv = document.getElementById('achievements');
-    achDiv.innerHTML = `Achievements: Hard Wins: ${achievements.hard_wins}, Power-Ups Used: ${achievements.powerup_usage}`;
+    achDiv.innerHTML = `Achievements: Hard Wins: ${achievements.hard_wins}`;
+}
+
+function autoRestartGame() {
+    fetch('/reset_game', { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('board').classList.remove('winner');
+        renderBoard(boardSize);
+        document.getElementById('status-message').textContent = `${playerName}'s turn (${playerSymbol})`;
+        updateScores(data.scores);
+        updateAchievements(data.achievements);
+        startTimer();
+        isGameActive = true;
+    });
 }
 
 function updateLeaderboard(leaderboard) {
